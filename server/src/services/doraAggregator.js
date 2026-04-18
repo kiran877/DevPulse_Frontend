@@ -1,5 +1,6 @@
 import { Event } from '../models/Event.js';
 import { MetricsSnapshot } from '../models/MetricsSnapshot.js';
+import { getIO } from '../lib/socket.js';
 
 /**
  * Returns start and end of the given date in UTC.
@@ -182,7 +183,7 @@ export async function computeAndSave(repoFullName, date) {
           totalPushes,
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     console.log(`✅ DORA aggregation complete for ${repoFullName}:`, {
@@ -193,6 +194,15 @@ export async function computeAndSave(repoFullName, date) {
       totalPRsMerged,
       totalPushes,
     });
+
+    // Emit real-time update to all clients subscribed to this repo
+    try {
+      const io = getIO();
+      io.to(repoFullName).emit('metrics:update', { repoFullName, metrics: snapshot });
+    } catch (socketErr) {
+      // Socket may not be initialized yet during startup — safe to ignore
+      console.warn('Socket emit skipped:', socketErr.message);
+    }
 
     return snapshot;
   } catch (error) {
