@@ -2,6 +2,7 @@ import express from 'express';
 import { verify } from '@octokit/webhooks-methods';
 import { isDuplicateEvent } from '../services/deduplication.js';
 import { Event } from '../models/Event.js';
+import { computeAndSave } from '../services/doraAggregator.js';
 
 const router = express.Router();
 
@@ -119,7 +120,14 @@ router.post('/github', async (req, res) => {
       }
     }
 
-    // Feature 5 hook: we will add computeAndSave() call here later
+    // Feature 5: Trigger DORA metric recalculation for this repo
+    const repoForMetrics = eventData.repoFullName;
+    if (repoForMetrics && repoForMetrics !== 'unknown') {
+      // Fire-and-forget — don't block the 200 response
+      computeAndSave(repoForMetrics, new Date()).catch((err) =>
+        console.error('Background aggregation error:', err.message)
+      );
+    }
 
     return res.status(200).send('Webhook processed.');
 
