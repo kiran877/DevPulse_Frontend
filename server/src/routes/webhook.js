@@ -58,6 +58,11 @@ router.post('/github', async (req, res) => {
       ? JSON.parse(payloadString)
       : req.body;
 
+    console.log(`Processing ${eventType} event...`);
+    if (!payload.repository) {
+      console.warn('Warning: Payload is missing repository object. Structure:', Object.keys(payload));
+    }
+
     let eventData = {
       eventType,
       payload,
@@ -66,18 +71,18 @@ router.post('/github', async (req, res) => {
 
     // Extract specifics based on type
     if (eventType === 'push') {
-      eventData.repoFullName = payload.repository.full_name;
+      eventData.repoFullName = payload.repository?.full_name || 'unknown';
       eventData.sha = payload.after;
 
       // Some push events (like tag deletes) might not have head_commit
       eventData.createdAt = payload.head_commit ? new Date(payload.head_commit.timestamp) : new Date();
     } else if (eventType === 'pull_request') {
-      eventData.repoFullName = payload.repository.full_name;
+      eventData.repoFullName = payload.repository?.full_name || 'unknown';
       eventData.prNumber = payload.number;
       eventData.action = payload.action;
       eventData.createdAt = new Date(payload.pull_request.updated_at);
     } else if (eventType === 'workflow_run') {
-      eventData.repoFullName = payload.repository.full_name;
+      eventData.repoFullName = payload.repository?.full_name || 'unknown';
       eventData.workflowRunId = payload.workflow_run.id;
       eventData.action = payload.action;
       eventData.conclusion = payload.workflow_run.conclusion;
