@@ -54,9 +54,14 @@ router.post('/github', async (req, res) => {
     }
 
     // We need the parsed object now
-    const payload = typeof req.body === 'string' || Buffer.isBuffer(req.body)
+    let payload = typeof req.body === 'string' || Buffer.isBuffer(req.body)
       ? JSON.parse(payloadString)
       : req.body;
+
+    // Handle nested payload structure (common with smee-client)
+    if (payload.payload) {
+      payload = payload.payload;
+    }
 
     console.log(`Processing ${eventType} event...`);
     if (!payload.repository) {
