@@ -26,11 +26,11 @@ router.post('/github', async (req, res) => {
 
     // Verify HMAC
     const isValid = await verify(secret, payloadString, signature);
-    
+
     if (!isValid) {
       console.warn('⚠️ Webhook Verification Failed! (Signature mismatch)');
       console.warn('Note: This is expected if you are using smee-client locally, as it alters the JSON payload formatting.');
-      
+
       if (process.env.NODE_ENV === 'production') {
         return res.status(401).send('Invalid signature');
       } else {
@@ -54,8 +54,8 @@ router.post('/github', async (req, res) => {
     }
 
     // We need the parsed object now
-    const payload = typeof req.body === 'string' || Buffer.isBuffer(req.body) 
-      ? JSON.parse(payloadString) 
+    const payload = typeof req.body === 'string' || Buffer.isBuffer(req.body)
+      ? JSON.parse(payloadString)
       : req.body;
 
     let eventData = {
@@ -68,7 +68,7 @@ router.post('/github', async (req, res) => {
     if (eventType === 'push') {
       eventData.repoFullName = payload.repository.full_name;
       eventData.sha = payload.after;
-      
+
       // Some push events (like tag deletes) might not have head_commit
       eventData.createdAt = payload.head_commit ? new Date(payload.head_commit.timestamp) : new Date();
     } else if (eventType === 'pull_request') {
@@ -90,16 +90,16 @@ router.post('/github', async (req, res) => {
       await Event.create(eventData);
     } catch (dbErr) {
       if (dbErr.code === 11000) {
-         console.log("Event already exists in MongoDB (Duplicate Key)");
+        console.log("Event already exists in MongoDB (Duplicate Key)");
       } else {
-         throw dbErr;
+        throw dbErr;
       }
     }
 
     // Feature 5 hook: we will add computeAndSave() call here later
 
-    return res.status(200).send('Webhook processed');
-    
+    return res.status(200).send('Webhook processed.');
+
   } catch (error) {
     console.error('CRITICAL Webhook Error:', error.message);
     if (error.stack) console.error(error.stack);
