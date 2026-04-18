@@ -101,7 +101,8 @@ router.post('/github', async (req, res) => {
     return res.status(200).send('Webhook processed');
     
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('CRITICAL Webhook Error:', error.message);
+    if (error.stack) console.error(error.stack);
     return res.status(500).send('Internal Server Error');
   }
 });
