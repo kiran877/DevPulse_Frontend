@@ -66,6 +66,14 @@ router.post('/github', async (req, res) => {
     // Handle nested payload structure (common with smee-client)
     if (payload && payload.payload) {
       payload = payload.payload;
+      // If the nested payload is a string, parse it again
+      if (typeof payload === 'string') {
+        try {
+          payload = JSON.parse(payload);
+        } catch (e) {
+          console.error("Failed to parse nested payload string:", e.message);
+        }
+      }
     }
 
     console.log(`Processing ${eventType} event... Payload type: ${typeof payload}`);
