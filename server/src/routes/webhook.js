@@ -54,18 +54,23 @@ router.post('/github', async (req, res) => {
     }
 
     // We need the parsed object now
-    let payload = typeof req.body === 'string' || Buffer.isBuffer(req.body)
-      ? JSON.parse(payloadString)
-      : req.body;
+    let payload = req.body;
+    if (typeof payload === 'string' || Buffer.isBuffer(payload)) {
+      try {
+        payload = JSON.parse(payload.toString());
+      } catch (e) {
+        payload = req.body; // Fallback
+      }
+    }
 
     // Handle nested payload structure (common with smee-client)
-    if (payload.payload) {
+    if (payload && payload.payload) {
       payload = payload.payload;
     }
 
-    console.log(`Processing ${eventType} event...`);
-    if (!payload.repository) {
-      console.warn('Warning: Payload is missing repository object. Structure:', Object.keys(payload));
+    console.log(`Processing ${eventType} event... Payload type: ${typeof payload}`);
+    if (!payload || !payload.repository) {
+      console.warn('Warning: Payload is missing repository object. Structure:', payload ? Object.keys(payload) : 'null');
     }
 
     let eventData = {
