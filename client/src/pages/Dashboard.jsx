@@ -46,17 +46,19 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       {/* Header */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <nav className="bg-white/70 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-2 text-indigo-600">
-              <Zap size={24} fill="currentColor" />
-              <span className="text-xl font-bold tracking-tight text-slate-900">DevPulse</span>
+          <div className="flex justify-between h-20 items-center">
+            <div className="flex items-center space-x-3 group cursor-pointer">
+              <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200 animate-pulse group-hover:animate-none transition-all">
+                <Zap size={22} className="text-white fill-current" />
+              </div>
+              <span className="text-2xl font-black tracking-tighter text-slate-900 group-hover:text-indigo-600 transition-colors">DevPulse</span>
             </div>
             
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-8">
               <RepoSelector 
                 repos={repos} 
                 selectedRepo={selectedRepo} 
@@ -64,7 +66,7 @@ export default function Dashboard() {
               />
               <button 
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors"
+                className="flex items-center space-x-2 text-slate-500 hover:text-rose-600 font-bold text-sm transition-all hover:translate-x-1"
               >
                 <LogOut size={18} />
                 <span>Sign Out</span>
@@ -74,90 +76,98 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-left">
         {/* Welcome Section */}
-        <div className="mb-8 flex justify-between items-end">
+        <div className="mb-12 flex justify-between items-end">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Engineering Health</h1>
-            <p className="text-slate-500 mt-1">Real-time DORA metrics for {selectedRepo || 'your repositories'}</p>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Engineering Health</h1>
+            <p className="text-lg font-medium text-slate-400 mt-2">Real-time DORA metrics for <span className="text-indigo-600 font-bold">{selectedRepo || 'your repositories'}</span></p>
           </div>
           <button 
             onClick={refetch}
             disabled={loadingMetrics}
-            className="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all disabled:opacity-50"
+            className="flex items-center space-x-2 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-700 hover:border-indigo-500 hover:text-indigo-600 transition-all active:scale-95 disabled:opacity-50"
           >
-            <RefreshCw size={16} className={loadingMetrics ? 'animate-spin' : ''} />
-            <span>Refresh</span>
+            <RefreshCw size={18} className={loadingMetrics ? 'animate-spin' : ''} />
+            <span>Sync Metrics</span>
           </button>
         </div>
 
         {error ? (
-          <div className="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
-            <p className="text-red-600 font-medium">{error}</p>
+          <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center shadow-lg shadow-rose-100">
+            <p className="text-rose-600 font-bold text-lg">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="mt-4 text-sm text-red-500 underline"
+              className="mt-4 text-sm font-bold text-rose-500 hover:text-rose-700 underline underline-offset-4"
             >
               Try again
             </button>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-12">
             {/* Metric Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <MetricCard 
                 title="Deployment Frequency"
                 value={metrics?.deploymentFrequency || 0}
                 unit="deploys / day"
-                trend={0}
-                description="How often code is successfully deployed to production."
+                trend={metrics?.trends?.deploymentFrequency || 0}
+                color="indigo"
+                description="Velocity of value delivery to production."
               />
               <MetricCard 
                 title="Lead Time"
                 value={metrics?.leadTimeMinutes || 0}
                 unit="min avg"
-                trend={0}
-                description="Time from first commit to successful deployment."
+                trend={metrics?.trends?.leadTimeMinutes || 0}
+                color="rose"
+                description="Efficiency of the engineering lifecycle."
               />
               <MetricCard 
                 title="MTTR"
                 value={metrics?.mttrMinutes || 0}
                 unit="min avg"
-                trend={0}
-                description="Mean time to recover from a service failure."
+                trend={metrics?.trends?.mttrMinutes || 0}
+                color="amber"
+                description="Resilience and recovery speed."
               />
               <MetricCard 
                 title="Change Failure Rate"
                 value={metrics?.changeFailureRate || 0}
                 unit="%"
-                trend={0}
-                description="Percentage of deployments causing failure in production."
+                trend={metrics?.trends?.changeFailureRate || 0}
+                color="red"
+                description="Quality and stability of deployments."
               />
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <TrendChart 
                 data={history} 
                 metric="deploymentFrequency" 
+                title="Deployment Frequency (30D)"
                 color="#6366f1" 
               />
               <TrendChart 
                 data={history} 
                 metric="leadTimeMinutes" 
-                color="#ec4899" 
+                title="Lead Time for Changes (30D)"
+                color="#f43f5e" 
               />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <TrendChart 
                 data={history} 
                 metric="mttrMinutes" 
+                title="Mean Time to Recovery (30D)"
                 color="#f59e0b" 
               />
               <TrendChart 
                 data={history} 
                 metric="changeFailureRate" 
+                title="Change Failure Rate (30D)"
                 color="#ef4444" 
               />
             </div>

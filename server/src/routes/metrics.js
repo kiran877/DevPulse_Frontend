@@ -43,15 +43,15 @@ router.get('/repos', async (req, res) => {
     const accessible = repos
       .filter((r) => r.permissions?.push || r.permissions?.admin)
       .map((r) => ({
-        id:            r.id,
-        fullName:      r.full_name,
-        name:          r.name,
-        owner:         r.owner.login,
-        private:       r.private,
-        description:   r.description,
+        id: r.id,
+        fullName: r.full_name,
+        name: r.name,
+        owner: r.owner.login,
+        private: r.private,
+        description: r.description,
         defaultBranch: r.default_branch,
-        pushedAt:      r.pushed_at,
-        htmlUrl:       r.html_url,
+        pushedAt: r.pushed_at,
+        htmlUrl: r.html_url,
       }));
 
     return res.json({ repos: accessible });
@@ -69,11 +69,11 @@ function emptyMetrics(repoFullName, date) {
     repoFullName,
     date,
     deploymentFrequency: 0,
-    leadTimeMinutes:     0,
-    mttrMinutes:         0,
-    changeFailureRate:   0,
-    totalPRsMerged:      0,
-    totalPushes:         0,
+    leadTimeMinutes: 0,
+    mttrMinutes: 0,
+    changeFailureRate: 0,
+    totalPRsMerged: 0,
+    totalPushes: 0,
   };
 }
 

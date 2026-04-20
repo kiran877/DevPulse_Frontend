@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
+import { fileURLToPath } from 'url';
 import { connectDB } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import authRoutes from './routes/auth.js';
@@ -46,4 +47,9 @@ const startServer = async () => {
   });
 };
 
-startServer();
+// Only start the server if this file is run directly
+if (process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url)) {
+  startServer();
+}
+
+export default app;
