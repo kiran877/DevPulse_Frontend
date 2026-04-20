@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, RefreshCw, Zap, Code } from 'lucide-react';
+import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit } from 'lucide-react';
 import api from '../lib/axios';
 import { useRepoMetrics } from '../hooks/useRepoMetrics';
 import RepoSelector from '../components/RepoSelector';
@@ -106,38 +106,50 @@ export default function Dashboard() {
         ) : (
           <div className="space-y-12">
             {/* Metric Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <MetricCard 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+              <MetricCard
                 title="Deployment Frequency"
                 value={metrics?.deploymentFrequency || 0}
                 unit="deploys / day"
-                trend={metrics?.trends?.deploymentFrequency || 0}
-                color="indigo"
-                description="Velocity of value delivery to production."
+                trend={metrics?.trends?.deploymentFrequency}
+                icon={Rocket}
+                color="from-indigo-500 to-blue-600"
+                subText="Velocity of value delivery."
               />
-              <MetricCard 
+              <MetricCard
                 title="Lead Time"
                 value={metrics?.leadTimeMinutes || 0}
                 unit="min avg"
-                trend={metrics?.trends?.leadTimeMinutes || 0}
-                color="rose"
-                description="Efficiency of the engineering lifecycle."
+                trend={metrics?.trends?.leadTimeMinutes}
+                icon={Clock}
+                color="from-rose-500 to-pink-600"
+                subText="Code to production speed."
               />
-              <MetricCard 
+              <MetricCard
                 title="MTTR"
                 value={metrics?.mttrMinutes || 0}
                 unit="min avg"
-                trend={metrics?.trends?.mttrMinutes || 0}
-                color="amber"
-                description="Resilience and recovery speed."
+                trend={metrics?.trends?.mttrMinutes}
+                icon={Activity}
+                color="from-amber-500 to-orange-600"
+                subText="Resilience and recovery."
               />
-              <MetricCard 
-                title="Change Failure Rate"
-                value={metrics?.changeFailureRate || 0}
+              <MetricCard
+                title="Failure Rate"
+                value={metrics?.changeFailureRate?.toString().replace('%', '') || 0}
                 unit="%"
-                trend={metrics?.trends?.changeFailureRate || 0}
-                color="red"
-                description="Quality and stability of deployments."
+                trend={metrics?.trends?.changeFailureRate}
+                icon={AlertCircle}
+                color="from-red-500 to-rose-600"
+                subText="Stability of deployments."
+              />
+              <MetricCard
+                title="Total Pushes"
+                value={metrics?.totalPushes || 0}
+                unit="commits"
+                icon={GitCommit}
+                color="from-purple-500 to-indigo-600"
+                subText="Development activity volume."
               />
             </div>
 
