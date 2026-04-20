@@ -14,6 +14,6 @@ const eventSchema = new mongoose.Schema({
 });
 
 eventSchema.index({ repoFullName: 1, createdAt: -1 });
-eventSchema.index({ repoFullName: 1, sha: 1, eventType: 1 }, { unique: true, sparse: true });
+eventSchema.index({ repoFullName: 1, sha: 1, eventType: 1, action: 1 }, { unique: true, sparse: true });
 
 export const Event = mongoose.model('Event', eventSchema);

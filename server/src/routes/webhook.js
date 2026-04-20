@@ -105,6 +105,7 @@ router.post('/github', async (req, res) => {
       eventData.workflowRunId = payload.workflow_run.id;
       eventData.action = payload.action;
       eventData.conclusion = payload.workflow_run.conclusion;
+      eventData.sha = payload.workflow_run.head_sha; // Use head_sha to satisfy uniqueness index
       eventData.createdAt = new Date(payload.workflow_run.created_at);
     }
 
