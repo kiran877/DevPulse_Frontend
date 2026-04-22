@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit, GitPullRequest } from 'lucide-react';
+import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit, GitPullRequest, Sparkles } from 'lucide-react';
 import api from '../lib/axios';
 import { useRepoMetrics } from '../hooks/useRepoMetrics';
 import RepoSelector from '../components/RepoSelector';
@@ -14,6 +14,30 @@ export default function Dashboard() {
   const [loadingRepos, setLoadingRepos] = useState(true);
 
   const { metrics, history, loading: loadingMetrics, error, refetch } = useRepoMetrics(selectedRepo);
+
+  const [aiInsight, setAiInsight] = useState(null);
+  const [loadingInsight, setLoadingInsight] = useState(false);
+
+  // Reset insight when repo changes
+  useEffect(() => {
+    setAiInsight(null);
+  }, [selectedRepo]);
+
+  const handleGenerateInsight = async () => {
+    if (!selectedRepo) return;
+    setLoadingInsight(true);
+    setAiInsight(null);
+    try {
+      const [owner, repo] = selectedRepo.split('/');
+      const res = await api.get(`/api/metrics/${owner}/${repo}/insights`);
+      setAiInsight(res.data.insight);
+    } catch (err) {
+      console.error('Failed to generate insight:', err);
+      setAiInsight('Failed to generate insights. Ensure the backend is configured correctly.');
+    } finally {
+      setLoadingInsight(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRepos = async () => {
@@ -92,15 +116,48 @@ export default function Dashboard() {
             </div>
             <p className="text-lg font-medium text-slate-400">Real-time DORA metrics for <span className="text-indigo-600 font-bold">{selectedRepo || 'your repositories'}</span></p>
           </div>
-          <button 
-            onClick={refetch}
-            disabled={loadingMetrics}
-            className="flex items-center space-x-2 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-700 hover:border-indigo-500 hover:text-indigo-600 transition-all active:scale-95 disabled:opacity-50"
-          >
-            <RefreshCw size={18} className={loadingMetrics ? 'animate-spin' : ''} />
-            <span>Sync Metrics</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleGenerateInsight}
+              disabled={loadingInsight || loadingMetrics}
+              className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 rounded-xl shadow-md text-sm font-bold text-white hover:shadow-lg hover:scale-105 transition-all active:scale-95 disabled:opacity-50"
+            >
+              <Sparkles size={18} className={loadingInsight ? 'animate-pulse' : ''} />
+              <span>{loadingInsight ? 'Analyzing...' : 'AI Insights'}</span>
+            </button>
+            <button 
+              onClick={refetch}
+              disabled={loadingMetrics}
+              className="flex items-center space-x-2 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-700 hover:border-indigo-500 hover:text-indigo-600 transition-all active:scale-95 disabled:opacity-50"
+            >
+              <RefreshCw size={18} className={loadingMetrics ? 'animate-spin' : ''} />
+              <span>Sync Metrics</span>
+            </button>
+          </div>
         </div>
+
+        {/* AI Insight Card */}
+        {(aiInsight || loadingInsight) && (
+          <div className="mb-12 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-purple-100 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200 rounded-full blur-3xl opacity-50 -mr-10 -mt-10 pointer-events-none"></div>
+            <div className="flex items-start gap-4 relative z-10">
+              <div className="p-3 bg-white rounded-xl shadow-sm border border-purple-100 text-purple-600">
+                <Sparkles size={24} className={loadingInsight ? 'animate-spin' : ''} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-black text-slate-900 mb-2">DevPulse AI Analysis</h3>
+                {loadingInsight ? (
+                  <div className="space-y-2 animate-pulse">
+                    <div className="h-4 bg-purple-200/50 rounded w-3/4"></div>
+                    <div className="h-4 bg-purple-200/50 rounded w-1/2"></div>
+                  </div>
+                ) : (
+                  <p className="text-slate-700 font-medium leading-relaxed">{aiInsight}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {error ? (
           <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center shadow-lg shadow-rose-100">

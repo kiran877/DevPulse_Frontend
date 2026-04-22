@@ -4,6 +4,8 @@ import { requireAuth } from '../middleware/auth.js';
 import { rateLimiter } from '../middleware/rateLimiter.js';
 import { MetricsSnapshot } from '../models/MetricsSnapshot.js';
 import { User } from '../models/User.js';
+import { Event } from '../models/Event.js';
+import { generateInsights } from '../services/aiInsights.js';
 
 const router = express.Router();
 
@@ -142,6 +144,41 @@ router.get('/metrics/:owner/:repo/history', async (req, res) => {
   } catch (error) {
     console.error(`GET /api/metrics/history error:`, error.message);
     return res.status(500).json({ error: true, message: 'Failed to fetch metrics history', code: 'FETCH_HISTORY_ERROR' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/metrics/:owner/:repo/insights
+// Generates AI insights based on today's metrics and RCA context
+// ---------------------------------------------------------------------------
+router.get('/metrics/:owner/:repo/insights', async (req, res) => {
+  try {
+    const { owner, repo } = req.params;
+    const repoFullName = `${owner}/${repo}`;
+
+    const user = await User.findById(req.user.userId).select('accessToken');
+    if (!user || !user.accessToken) {
+      return res.status(400).json({ error: true, message: 'No GitHub access token on file' });
+    }
+
+    // Get today's metrics
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const metrics = await MetricsSnapshot.findOne({ repoFullName, date: today }).lean() || emptyMetrics(repoFullName, today);
+
+    // RCA: Find the latest failed workflow_run for this repo
+    const latestFailedRun = await Event.findOne({
+      repoFullName,
+      eventType: 'workflow_run',
+      conclusion: 'failure'
+    }).sort({ createdAt: -1 });
+
+    const insightText = await generateInsights(metrics, latestFailedRun, user.accessToken);
+
+    return res.json({ insight: insightText });
+  } catch (error) {
+    console.error(`GET /api/metrics/insights error:`, error.message);
+    return res.status(500).json({ error: true, message: 'Failed to generate insights' });
   }
 });
 
