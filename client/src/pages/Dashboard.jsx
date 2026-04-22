@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit } from 'lucide-react';
+import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit, GitPullRequest } from 'lucide-react';
 import api from '../lib/axios';
 import { useRepoMetrics } from '../hooks/useRepoMetrics';
 import RepoSelector from '../components/RepoSelector';
@@ -80,8 +80,17 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-12 flex justify-between items-end">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Engineering Health</h1>
-            <p className="text-lg font-medium text-slate-400 mt-2">Real-time DORA metrics for <span className="text-indigo-600 font-bold">{selectedRepo || 'your repositories'}</span></p>
+            <div className="flex items-center gap-4 mb-2">
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight">Engineering Health</h1>
+              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full shadow-sm">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </div>
+                <span className="text-[10px] font-black text-emerald-700 tracking-wider uppercase mt-px">Live</span>
+              </div>
+            </div>
+            <p className="text-lg font-medium text-slate-400">Real-time DORA metrics for <span className="text-indigo-600 font-bold">{selectedRepo || 'your repositories'}</span></p>
           </div>
           <button 
             onClick={refetch}
@@ -106,7 +115,7 @@ export default function Dashboard() {
         ) : (
           <div className="space-y-12">
             {/* Metric Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <MetricCard
                 title="Deployment Frequency"
                 value={metrics?.deploymentFrequency || 0}
@@ -150,6 +159,14 @@ export default function Dashboard() {
                 icon={GitCommit}
                 color="from-purple-500 to-indigo-600"
                 subText="Development activity volume."
+              />
+              <MetricCard
+                title="Total PRs"
+                value={metrics?.totalPRsMerged || 0}
+                unit="merged"
+                icon={GitPullRequest}
+                color="from-teal-500 to-emerald-600"
+                subText="Collaboration and code review."
               />
             </div>
 

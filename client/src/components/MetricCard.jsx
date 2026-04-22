@@ -1,41 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-const MetricCard = ({ title, value, unit, trend, description, color = 'indigo' }) => {
-  const isPositiveTrend = trend >= 0;
-  
-  // Map color names to Tailwind classes
-  const colorMap = {
-    indigo: 'border-indigo-500 shadow-indigo-100',
-    rose: 'border-rose-500 shadow-rose-100',
-    amber: 'border-amber-500 shadow-amber-100',
-    red: 'border-red-500 shadow-red-100',
-  };
+const MetricCard = ({ title, value, unit, trend, icon: Icon, color, subText }) => {
+  const [flash, setFlash] = useState(false);
 
-  const badgeMap = {
-    indigo: 'bg-indigo-50 text-indigo-600',
-    rose: 'bg-rose-50 text-rose-600',
-    amber: 'bg-amber-50 text-amber-600',
-    red: 'bg-red-50 text-red-600',
-  };
+  // Trigger flash animation when value changes
+  useEffect(() => {
+    // Only flash if value is greater than 0 to avoid flashing on initial load
+    if (value !== undefined && value !== null) {
+      setFlash(true);
+      const timer = setTimeout(() => setFlash(false), 1500); // 1.5s flash duration
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
+
+  const isPositiveTrend = trend >= 0;
 
   return (
-    <div className={`bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-t-4 ${colorMap[color] || colorMap.indigo} hover:scale-[1.02] transition-all duration-300 group relative overflow-hidden`}>
-      <div className="flex justify-between items-start mb-4 relative z-10">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</h3>
-        <div className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold ${badgeMap[color] || 'bg-green-50 text-green-600'}`}>
-          {isPositiveTrend ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-          <span>{Math.abs(trend)}%</span>
-        </div>
-      </div>
-      <div className="flex items-baseline space-x-2 relative z-10">
-        <span className="text-4xl font-black text-slate-900 tracking-tight">{value}</span>
-        <span className="text-sm font-bold text-slate-400">{unit}</span>
-      </div>
-      <p className="mt-3 text-xs font-medium text-slate-500 leading-relaxed relative z-10">{description}</p>
+    <div className={`relative overflow-hidden group transition-all duration-500 ${flash ? 'scale-[1.03] shadow-2xl ring-4 ring-indigo-500/30' : 'hover:scale-[1.02] shadow-xl'} bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-100`}>
+      {/* Dynamic Background Glow */}
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color || 'from-indigo-500 to-blue-600'} opacity-10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500`} />
       
-      {/* Decorative background element */}
-      <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-5 blur-2xl ${color === 'rose' ? 'bg-rose-500' : color === 'amber' ? 'bg-amber-500' : color === 'red' ? 'bg-red-500' : 'bg-indigo-500'}`}></div>
+      {/* Flash overlay */}
+      <div className={`absolute inset-0 bg-indigo-500/5 pointer-events-none transition-opacity duration-500 ${flash ? 'opacity-100' : 'opacity-0'}`} />
+
+      <div className="flex items-start justify-between relative z-10">
+        <div>
+          <p className="text-slate-400 font-bold mb-1 text-xs uppercase tracking-widest">{title}</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className={`text-4xl font-black tracking-tight transition-colors duration-500 ${flash ? 'text-indigo-600' : 'text-slate-900'}`}>{value}</h3>
+            <span className="text-slate-400 text-sm font-bold">{unit}</span>
+          </div>
+          {subText && <p className="text-slate-500 text-xs mt-3 font-medium">{subText}</p>}
+        </div>
+        
+        {Icon && (
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${color || 'from-indigo-500 to-blue-600'} shadow-lg shadow-black/10 transition-transform duration-500 ${flash ? 'scale-110 rotate-3' : ''}`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+        )}
+      </div>
+
+      {trend !== undefined && trend !== null && (
+        <div className="mt-5 flex items-center gap-2 relative z-10">
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+            isPositiveTrend ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+          }`}>
+            {isPositiveTrend ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {Math.abs(trend)}%
+          </div>
+          <span className="text-slate-400 text-xs font-medium">vs yesterday</span>
+        </div>
+      )}
     </div>
   );
 };
