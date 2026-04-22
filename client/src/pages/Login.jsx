@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Login() {
   const handleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/auth/github`;
+    window.location.href = `${import.meta.env.VITE_API_URL || 'https://devpulse-frontend-kg5k.onrender.com'}/auth/github`;
   };
 
   return (
@@ -10,7 +10,7 @@ export default function Login() {
       <div style={{ textAlign: 'center' }}>
         <h1>Welcome to DevPulse</h1>
         <p>Real-time DORA metrics dashboard</p>
-        <button 
+        <button
           onClick={handleLogin}
           style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer', marginTop: '20px' }}
         >

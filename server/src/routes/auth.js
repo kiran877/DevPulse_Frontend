@@ -11,7 +11,7 @@ const router = express.Router();
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID || 'dummy_id',
     clientSecret: process.env.GITHUB_CLIENT_SECRET || 'dummy_secret',
-    callbackURL: "http://localhost:4000/auth/github/callback"
+    callbackURL: `${process.env.SERVER_URL || 'http://localhost:4000'}/auth/github/callback`
   },
   async function(accessToken, refreshToken, profile, done) {
     try {
