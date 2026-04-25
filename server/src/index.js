@@ -10,6 +10,8 @@ import { initSocket } from './lib/socket.js';
 import authRoutes from './routes/auth.js';
 import webhookRoutes from './routes/webhook.js';
 import metricsRoutes from './routes/metrics.js';
+import { metricsMiddleware } from './middleware/metricsMiddleware.js';
+import { register } from './services/metricsProvider.js';
 
 const app = express();
 const httpServer = createServer(app); // wrap Express in a raw HTTP server for Socket.io
@@ -26,12 +28,20 @@ app.use(express.json({
 app.use(cookieParser());
 app.use(passport.initialize());
 
+// Setup global metrics middleware
+app.use(metricsMiddleware);
+
 app.use('/auth', authRoutes);
 app.use('/webhook', webhookRoutes);
 app.use('/api', metricsRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: "ok", timestamp: new Date() });
+});
+
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
 });
 
 const PORT = process.env.PORT || 4000;

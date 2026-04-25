@@ -36,7 +36,7 @@ export async function generateInsights(metrics, latestFailedRun, githubToken) {
           }
         }
       );
-      
+
       const failedJob = data.jobs?.find(j => j.conclusion === 'failure');
       if (failedJob) {
         const failedStep = failedJob.steps?.find(s => s.conclusion === 'failure');
