@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit, GitPullRequest, Sparkles } from 'lucide-react';
+import { ExternalLink, LogOut, RefreshCw, Zap, Rocket, Clock, Activity, AlertCircle, GitCommit, GitPullRequest, Sparkles } from 'lucide-react';
 import api from '../lib/axios';
 import { useRepoMetrics } from '../hooks/useRepoMetrics';
 import RepoSelector from '../components/RepoSelector';
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [repos, setRepos] = useState([]);
   const [selectedRepo, setSelectedRepo] = useState('');
   const [loadingRepos, setLoadingRepos] = useState(true);
+  const githubAppInstallUrl = import.meta.env.VITE_GITHUB_APP_INSTALL_URL || 'https://github.com/settings/apps';
 
   const { metrics, history, loading: loadingMetrics, error, refetch } = useRepoMetrics(selectedRepo);
 
@@ -39,20 +40,25 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const fetchRepos = async () => {
-      try {
-        const res = await api.get('/api/repos');
-        setRepos(res.data.repos);
-        if (res.data.repos.length > 0) {
-          setSelectedRepo(res.data.repos[0].fullName);
-        }
-      } catch (err) {
-        console.error('Failed to fetch repos:', err);
-      } finally {
-        setLoadingRepos(false);
+  const fetchRepos = async () => {
+    setLoadingRepos(true);
+    try {
+      const res = await api.get('/api/repos');
+      const fetchedRepos = res.data.repos || [];
+      setRepos(fetchedRepos);
+      if (fetchedRepos.length > 0) {
+        setSelectedRepo((currentRepo) => currentRepo || fetchedRepos[0].fullName);
+      } else {
+        setSelectedRepo('');
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch repos:', err);
+    } finally {
+      setLoadingRepos(false);
+    }
+  };
+
+  useEffect(() => {
     fetchRepos();
   }, []);
 
@@ -89,11 +95,13 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center space-x-8">
-              <RepoSelector
-                repos={repos}
-                selectedRepo={selectedRepo}
-                onSelect={setSelectedRepo}
-              />
+              {repos.length > 0 && (
+                <RepoSelector
+                  repos={repos}
+                  selectedRepo={selectedRepo}
+                  onSelect={setSelectedRepo}
+                />
+              )}
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 text-slate-400 hover:text-rose-400 font-bold text-sm transition-all hover:translate-x-1"
@@ -124,24 +132,26 @@ export default function Dashboard() {
               Real-time DORA metrics for <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent font-bold">{selectedRepo || 'your repositories'}</span>
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleGenerateInsight}
-              disabled={loadingInsight || loadingMetrics}
-              className="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/10 text-sm font-bold text-white transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <Sparkles size={18} className={loadingInsight ? 'animate-pulse' : ''} />
-              <span>{loadingInsight ? 'Analyzing...' : 'AI Insights'}</span>
-            </button>
-            <button
-              onClick={refetch}
-              disabled={loadingMetrics}
-              className="flex items-center space-x-2 bg-slate-900 text-slate-200 px-6 py-3 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <RefreshCw size={18} className={loadingMetrics ? 'animate-spin' : ''} />
-              <span>Sync Metrics</span>
-            </button>
-          </div>
+          {repos.length > 0 && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleGenerateInsight}
+                disabled={loadingInsight || loadingMetrics}
+                className="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/10 text-sm font-bold text-white transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles size={18} className={loadingInsight ? 'animate-pulse' : ''} />
+                <span>{loadingInsight ? 'Analyzing...' : 'AI Insights'}</span>
+              </button>
+              <button
+                onClick={refetch}
+                disabled={loadingMetrics}
+                className="flex items-center space-x-2 bg-slate-900 text-slate-200 px-6 py-3 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <RefreshCw size={18} className={loadingMetrics ? 'animate-spin' : ''} />
+                <span>Sync Metrics</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* AI Insight Card */}
@@ -167,7 +177,39 @@ export default function Dashboard() {
           </div>
         )}
 
-        {error ? (
+        {repos.length === 0 ? (
+          <div className="bg-slate-900/50 border border-emerald-900/40 rounded-2xl p-8 sm:p-10 shadow-2xl max-w-3xl">
+            <div className="flex flex-col gap-6">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-3">Repository Access Required</p>
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">Install DevPulse on your repositories</h2>
+                <p className="text-slate-400 font-medium leading-relaxed">
+                  Your GitHub login is connected, but DevPulse cannot find repositories with access yet. Install the GitHub App and choose all repositories or the specific repositories you want to monitor.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href={githubAppInstallUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/10 text-sm font-bold text-white transition-all active:scale-95"
+                >
+                  <ExternalLink size={18} />
+                  <span>Install GitHub App</span>
+                </a>
+                <button
+                  onClick={fetchRepos}
+                  disabled={loadingRepos}
+                  className="inline-flex items-center justify-center gap-2 bg-slate-950 text-slate-200 px-6 py-3 rounded-xl shadow-sm text-sm font-bold hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  <RefreshCw size={18} className={loadingRepos ? 'animate-spin' : ''} />
+                  <span>Check again</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
           <div className="bg-rose-950/30 border border-rose-900/40 rounded-2xl p-8 text-center shadow-2xl">
             <p className="text-rose-400 font-bold text-lg">{error}</p>
             <button
