@@ -3,18 +3,18 @@ import { Code } from 'lucide-react';
 
 const RepoSelector = ({ repos, selectedRepo, onSelect }) => {
   return (
-    <div className="flex items-center space-x-3 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
-      <div className="bg-gray-900 p-2 rounded-md text-white">
+    <div className="flex items-center space-x-3 bg-slate-900/60 backdrop-blur-md p-2 rounded-xl border-none shadow-xl">
+      <div className="bg-slate-950 p-2 rounded-lg text-emerald-400">
         <Code size={20} />
       </div>
       <select
         value={selectedRepo}
         onChange={(e) => onSelect(e.target.value)}
-        className="bg-transparent border-none focus:ring-0 text-sm font-semibold text-gray-700 min-w-[200px] cursor-pointer"
+        className="bg-transparent border-none focus:ring-0 text-sm font-semibold text-slate-200 min-w-[200px] cursor-pointer outline-none"
       >
-        <option value="" disabled>Select a repository</option>
+        <option value="" disabled className="bg-slate-900 text-slate-400">Select a repository</option>
         {repos.map((repo) => (
-          <option key={repo.id} value={repo.fullName}>
+          <option key={repo.id} value={repo.fullName} className="bg-slate-900 text-slate-200">
             {repo.fullName}
           </option>
         ))}

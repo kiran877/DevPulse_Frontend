@@ -49,7 +49,7 @@ export default function Login() {
       {/* 2-COLUMN SPLIT LAYOUT - Viewport Constrained on all device sizes */}
       
       {/* LEFT COLUMN: LOGO & HEADING (plus charts on desktop only) */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-start lg:justify-between p-5 sm:p-8 xl:p-12 relative z-10 lg:bg-slate-950/40">
+      <div className="w-full lg:w-1/2 flex-shrink-0 min-w-0 flex flex-col justify-start lg:justify-between p-5 sm:p-8 xl:p-12 relative z-10 lg:bg-slate-950/40">
         
         {/* LOGO */}
         <div className="flex items-center space-x-3">
@@ -296,7 +296,7 @@ export default function Login() {
       </div>
 
       {/* RIGHT COLUMN: LOGIN FORM PANEL */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-5 sm:p-8 xl:p-12 flex-1 relative z-10">
+      <div className="w-full lg:w-1/2 flex-shrink-0 min-w-0 flex flex-col justify-between p-5 sm:p-8 xl:p-12 relative z-10">
         
         {/* Placeholder element for flex spacing on desktop */}
         <div className="hidden lg:block"></div>
