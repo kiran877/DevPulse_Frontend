@@ -81,14 +81,14 @@ export default function Dashboard() {
               </div>
               <span className="text-2xl font-black tracking-tighter text-slate-900 group-hover:text-indigo-600 transition-colors">DevPulse</span>
             </div>
-            
+
             <div className="flex items-center space-x-8">
-              <RepoSelector 
-                repos={repos} 
-                selectedRepo={selectedRepo} 
-                onSelect={setSelectedRepo} 
+              <RepoSelector
+                repos={repos}
+                selectedRepo={selectedRepo}
+                onSelect={setSelectedRepo}
               />
-              <button 
+              <button
                 onClick={handleLogout}
                 className="flex items-center space-x-2 text-slate-500 hover:text-rose-600 font-bold text-sm transition-all hover:translate-x-1"
               >
@@ -117,7 +117,7 @@ export default function Dashboard() {
             <p className="text-lg font-medium text-slate-400">Real-time DORA metrics for <span className="text-indigo-600 font-bold">{selectedRepo || 'your repositories'}</span></p>
           </div>
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={handleGenerateInsight}
               disabled={loadingInsight || loadingMetrics}
               className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 rounded-xl shadow-md text-sm font-bold text-white hover:shadow-lg hover:scale-105 transition-all active:scale-95 disabled:opacity-50"
@@ -125,7 +125,7 @@ export default function Dashboard() {
               <Sparkles size={18} className={loadingInsight ? 'animate-pulse' : ''} />
               <span>{loadingInsight ? 'Analyzing...' : 'AI Insights'}</span>
             </button>
-            <button 
+            <button
               onClick={refetch}
               disabled={loadingMetrics}
               className="flex items-center space-x-2 bg-white px-6 py-3 rounded-xl border border-slate-200 shadow-sm text-sm font-bold text-slate-700 hover:border-indigo-500 hover:text-indigo-600 transition-all active:scale-95 disabled:opacity-50"
@@ -162,7 +162,7 @@ export default function Dashboard() {
         {error ? (
           <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center shadow-lg shadow-rose-100">
             <p className="text-rose-600 font-bold text-lg">{error}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="mt-4 text-sm font-bold text-rose-500 hover:text-rose-700 underline underline-offset-4"
             >
@@ -229,32 +229,32 @@ export default function Dashboard() {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <TrendChart 
-                data={history} 
-                metric="deploymentFrequency" 
+              <TrendChart
+                data={history}
+                metric="deploymentFrequency"
                 title="Deployment Frequency (30D)"
-                color="#6366f1" 
+                color="#6366f1"
               />
-              <TrendChart 
-                data={history} 
-                metric="leadTimeMinutes" 
+              <TrendChart
+                data={history}
+                metric="leadTimeMinutes"
                 title="Lead Time for Changes (30D)"
-                color="#f43f5e" 
+                color="#f43f5e"
               />
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <TrendChart 
-                data={history} 
-                metric="mttrMinutes" 
+              <TrendChart
+                data={history}
+                metric="mttrMinutes"
                 title="Mean Time to Recovery (30D)"
-                color="#f59e0b" 
+                color="#f59e0b"
               />
-              <TrendChart 
-                data={history} 
-                metric="changeFailureRate" 
+              <TrendChart
+                data={history}
+                metric="changeFailureRate"
                 title="Change Failure Rate (30D)"
-                color="#ef4444" 
+                color="#ef4444"
               />
             </div>
           </div>

@@ -15,13 +15,13 @@ const TrendChart = ({ data, metric, color = "#6366f1", title = "Trend" }) => {
         <AreaChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={color} stopOpacity={0}/>
+              <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="date" 
+          <XAxis
+            dataKey="date"
             tickFormatter={(str) => {
               try {
                 return new Date(str).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
@@ -34,15 +34,15 @@ const TrendChart = ({ data, metric, color = "#6366f1", title = "Trend" }) => {
             tickLine={false}
             dy={10}
           />
-          <YAxis 
+          <YAxis
             tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip 
-            contentStyle={{ 
-              borderRadius: '12px', 
-              border: 'none', 
+          <Tooltip
+            contentStyle={{
+              borderRadius: '12px',
+              border: 'none',
               boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
               padding: '12px'
             }}
@@ -56,12 +56,12 @@ const TrendChart = ({ data, metric, color = "#6366f1", title = "Trend" }) => {
               }
             }}
           />
-          <Area 
-            type="monotone" 
-            dataKey={metric} 
-            stroke={color} 
-            strokeWidth={4} 
-            fillOpacity={1} 
+          <Area
+            type="monotone"
+            dataKey={metric}
+            stroke={color}
+            strokeWidth={4}
+            fillOpacity={1}
             fill={`url(#${gradientId})`}
             animationDuration={1500}
           />

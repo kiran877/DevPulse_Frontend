@@ -20,7 +20,7 @@ const MetricCard = ({ title, value, unit, trend, icon: Icon, color, subText }) =
     <div className={`relative overflow-hidden group transition-all duration-500 ${flash ? 'scale-[1.03] shadow-2xl ring-4 ring-indigo-500/30' : 'hover:scale-[1.02] shadow-xl'} bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-slate-100`}>
       {/* Dynamic Background Glow */}
       <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color || 'from-indigo-500 to-blue-600'} opacity-10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500`} />
-      
+
       {/* Flash overlay */}
       <div className={`absolute inset-0 bg-indigo-500/5 pointer-events-none transition-opacity duration-500 ${flash ? 'opacity-100' : 'opacity-0'}`} />
 
@@ -33,7 +33,7 @@ const MetricCard = ({ title, value, unit, trend, icon: Icon, color, subText }) =
           </div>
           {subText && <p className="text-slate-500 text-xs mt-3 font-medium">{subText}</p>}
         </div>
-        
+
         {Icon && (
           <div className={`p-3 rounded-xl bg-gradient-to-br ${color || 'from-indigo-500 to-blue-600'} shadow-lg shadow-black/10 transition-transform duration-500 ${flash ? 'scale-110 rotate-3' : ''}`}>
             <Icon className="w-6 h-6 text-white" />
@@ -43,9 +43,8 @@ const MetricCard = ({ title, value, unit, trend, icon: Icon, color, subText }) =
 
       {trend !== undefined && trend !== null && (
         <div className="mt-5 flex items-center gap-2 relative z-10">
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-            isPositiveTrend ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-          }`}>
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${isPositiveTrend ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+            }`}>
             {isPositiveTrend ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
             {Math.abs(trend)}%
           </div>
@@ -57,3 +56,4 @@ const MetricCard = ({ title, value, unit, trend, icon: Icon, color, subText }) =
 };
 
 export default MetricCard;
+
